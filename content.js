@@ -1,9 +1,9 @@
 const DEMO = true;
 const BUY_URL = "";
 const TYPES = {
-  fog:   { name: "Fog",   blurb: "You're missing something you need to know. The choice feels hard because the picture is incomplete." },
-  tug:   { name: "Tug",   blurb: "Both options protect something you care about. The choice feels hard because two good things pull in different directions." },
-  dread: { name: "Dread", blurb: "You can mostly see the options. The choice feels hard because you're afraid of wishing you'd chosen the other one." }
+  fog:   { name: "Missing Facts",       blurb: "Something you need to know is missing, so the choice won't settle." },
+  tug:   { name: "Torn Between Values", blurb: "Both options protect something you care about, so they pull against each other." },
+  dread: { name: "Fear of Regret",      blurb: "You can see the options. What's loud is the fear of wishing you'd chosen the other one." }
 };
 
 const CARDS = [
