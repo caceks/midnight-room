@@ -1,5 +1,5 @@
 const CACHE = "midnight-room-v1";
-const FILES = ["./", "./index.html", "./content.js", "./manifest.webmanifest", "./icon.svg"];
+const FILES = ["./", "./index.html", "./content.js", "./manifest.webmanifest", "./icon.svg", "./hero.webp"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
