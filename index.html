@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Midnight Room</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0d1120">
+<style>
+  :root {
+    --bg: #0d1120;
+    --bg2: #151b30;
+    --panel: #1a2140;
+    --line: #2a3358;
+    --text: #ece7da;
+    --muted: #a3a8bf;
+    --lamp: #f2b45a;
+    --lamp-dim: #8a6a3a;
+    --fog: #8fb3d9;
+    --tug: #c79be0;
+    --dread: #e58f7a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: radial-gradient(1200px 600px at 50% -10%, #1b2348 0%, var(--bg) 60%) fixed;
+    color: var(--text);
+    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 28px 16px 80px; }
+  header.top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+  .brand { letter-spacing: .18em; text-transform: uppercase; font-size: 13px; color: var(--lamp); }
+  .link { background: none; border: 0; color: var(--muted); font: inherit; font-size: 14px; cursor: pointer; text-decoration: underline; padding: 4px; }
+  .lamps { display: flex; gap: 10px; margin-bottom: 26px; }
+  .lamp { flex: 1; height: 4px; border-radius: 2px; background: var(--line); }
+  .lamp.on { background: var(--lamp); box-shadow: 0 0 10px var(--lamp-dim); }
+  .kicker { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--lamp); margin: 0 0 6px; }
+  h1 { font-size: clamp(32px, 7vw, 46px); line-height: 1.1; margin: 0 0 14px; font-weight: 600; }
+  h2 { font-size: clamp(24px, 5vw, 30px); line-height: 1.2; margin: 0 0 10px; font-weight: 600; }
+  p.lead { color: var(--muted); font-size: 18px; margin: 0 0 24px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+  label.f { display: block; font-size: 14px; color: var(--muted); margin: 0 0 6px; }
+  textarea, input[type=text], input[type=date] {
+    width: 100%; background: var(--bg2); color: var(--text); border: 1px solid var(--line);
+    border-radius: 10px; padding: 12px 14px; font: inherit; font-size: 16px;
+  }
+  textarea { min-height: 84px; resize: vertical; }
+  textarea:focus, input:focus { outline: 2px solid var(--lamp); outline-offset: 1px; }
+  .btn {
+    background: var(--lamp); color: #1b1405; border: 0; border-radius: 999px;
+    padding: 13px 26px; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); font-weight: 400; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 20px; }
+  .opt {
+    display: block; width: 100%; text-align: left; background: var(--bg2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+    font: inherit; font-size: 16px; cursor: pointer;
+  }
+  .opt:hover { border-color: var(--lamp-dim); }
+  .opt.sel { border-color: var(--lamp); background: #232b52; }
+  .qn { color: var(--muted); font-size: 14px; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid currentColor; }
+  .t-fog { color: var(--fog); } .t-tug { color: var(--tug); } .t-dread { color: var(--dread); }
+  .card { border-left: 4px solid currentColor; }
+  .card .q { font-size: 22px; line-height: 1.3; margin: 8px 0 10px; color: var(--text); }
+  .card .why { color: var(--muted); margin: 0 0 12px; }
+  .card .ex { background: var(--bg2); border-radius: 10px; padding: 12px 14px; color: var(--text); margin-bottom: 12px; font-size: 16px; }
+  .card .ex b { color: var(--lamp); font-weight: 600; }
+  .card .num { float: right; color: var(--muted); font-size: 13px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+  .small { font-size: 14px; color: var(--muted); }
+  .fill { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .fill span { color: var(--muted); }
+  .fill input { flex: 1; min-width: 140px; }
+  .dcard { background: #f6f1e4; color: #231d10; border-radius: 14px; padding: 26px; }
+  .dcard h3 { margin: 0 0 4px; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: #8a5a10; }
+  .dcard p { margin: 0 0 16px; white-space: pre-wrap; }
+  .dcard .big { font-size: 20px; }
+  .dcard .brand { color: #8a5a10; margin-bottom: 14px; }
+  footer { margin-top: 40px; font-size: 13px; color: var(--muted); }
+  @media print {
+    body { background: #fff; }
+    .noprint { display: none !important; }
+    .dcard { border: 1px solid #999; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top noprint">
+    <div class="brand">The Midnight Room</div>
+    <div>
+      <button class="link" id="homeBtn">My decisions</button>
+      <button class="link" id="libBtn">All 12 cards</button>
+      <button class="link" id="resetBtn">Start over</button>
+    </div>
+  </header>
+  <div id="app"></div>
+  <footer class="noprint">
+    The Midnight Room is a thinking tool, not medical, legal, financial or therapeutic advice.
+    It never tells you what to choose.
+  </footer>
+</div>
+
+<script src="content.js"></script>
+<script>
+const LAMPS = ["The Fork", "The Fog Check", "The Flip", "The Next Door"];
+const KEY = "midnightRoom.v1";
+const HKEY = "midnightRoom.history.v1";
+const blank = () => ({ id:null, outcomeNote:"", outcomeChoice:"", step:0, a:"", b:"", quiz:[null,null,null], type:null, slots:[0,1], notes:{}, action:"", when:"", ifx:"", choose:"" });
+let S = load();
+
+function load() {
+  try { const r = localStorage.getItem(KEY); if (r) return Object.assign(blank(), JSON.parse(r)); } catch (e) {}
+  return blank();
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+const $ = id => document.getElementById(id);
+const app = $("app");
+
+function allOfType(t) { return CARDS.map((c, i) => ({ c, i })).filter(x => x.c.t === t); }
+function typeCards(t) { return allOfType(t).filter(x => !x.c.locked); }
+function diagnose() {
+  const n = { fog:0, tug:0, dread:0 };
+  S.quiz.forEach((v, i) => { if (v !== null) n[QUIZ[i].a[v][1]]++; });
+  const first = QUIZ[0].a[S.quiz[0]][1];
+  return Object.keys(n).sort((x, y) => n[y] - n[x] || (y === first) - (x === first))[0];
+}
+function loadHist() { try { return JSON.parse(localStorage.getItem(HKEY)) || []; } catch (e) { return []; } }
+function upsertHist() {
+  if (!S.id) return;
+  const h = loadHist().filter(x => x.id !== S.id);
+  h.unshift(Object.assign({}, S, { step: 5 }));
+  try { localStorage.setItem(HKEY, JSON.stringify(h)); } catch (e) {}
+}
+function status(d) {
+  if (d.outcomeChoice) return "Checked in: " + (d.outcomeChoice === "A" ? "chose A" : d.outcomeChoice === "B" ? "chose B" : "testing again");
+  if (!d.when) return "Test not dated";
+  const due = new Date(d.when + "T00:00:00");
+  return due <= new Date() ? "Time to check in" : "Test by " + due.toLocaleDateString(undefined, { month:"short", day:"numeric" });
+}
+function go(step) {
+  if (step === 1 && !S.id) S.id = String(Date.now());
+  if (step === 5) upsertHist();
+  if (step === 3 && S.slots.some(i => CARDS[i].t !== S.type)) S.slots = typeCards(S.type).slice(0, 2).map(x => x.i);
+  S.step = step; save(); render(); window.scrollTo(0, 0); }
+function lampBar() {
+  if (S.step < 1 || S.step > 4) return "";
+  return `<div class="lamps noprint">${[1,2,3,4].map(i => `<div class="lamp ${i <= S.step ? "on" : ""}"></div>`).join("")}</div>`;
+}
+function cardHTML(c, idx, extra) {
+  if (c.locked) return `<div class="panel card t-${c.t}" style="opacity:.75">
+    <span class="num">Card ${idx + 1} of 12</span>
+    <span class="tag">${TYPES[c.t].name}</span>
+    <h3 style="margin:10px 0 0;font-size:16px;color:var(--lamp);font-weight:600">🔒 ${esc(c.title)}</h3>
+    <p class="why" style="margin:8px 0 0">Included in the full deck.${BUY_URL ? ` <a style="color:var(--lamp)" href="${esc(BUY_URL)}">Get the full deck</a>` : " Coming soon."}</p>
+  </div>`;
+  return `<div class="panel card t-${c.t}">
+    <span class="num">Card ${idx + 1} of 12</span>
+    <span class="tag">${TYPES[c.t].name}</span>
+    <h3 style="margin:10px 0 0;font-size:16px;color:var(--lamp);font-weight:600">${esc(c.title)}</h3>
+    <div class="q">${esc(c.q)}</div>
+    <p class="why">${esc(c.why)}</p>
+    <div class="ex"><b>Try this:</b> ${esc(c.ex)}</div>
+    ${extra || ""}
+  </div>`;
+}
+
+function render() {
+  const v = [intro, fork, fogCheck, flip, nextDoor, result][S.step] || intro;
+  app.innerHTML = lampBar() + v();
+  bind();
+}
+
+function intro() {
+  return `
+    <p class="kicker">About 10 minutes · 4 lamps</p>
+    <h1>Make a decision.<br>Find your next step.</h1>
+    <p class="lead">Stuck between two options? The Midnight Room helps you name what kind of stuck you are, look at the choice from a new angle, and leave with one small step you can take in 48 hours.</p>
+    <div class="panel">
+      <div class="small" style="margin-bottom:10px">What you'll get</div>
+      <div>A one-page <b>Decision Card</b>: your fork in plain words, your stuck type, what you noticed, a 48-hour test, and a rule for what to do with the result.</div>
+    </div>
+    <div class="row"><button class="btn" id="start">Light the first lamp</button>
+      ${S.id && S.step === 0 && S.a && !S.action.trim() ? `<button class="btn ghost" data-go="1">Continue my draft</button>` : ""}</div>
+    <p class="small">It won't tell you what to choose. It helps you stop circling and start testing.</p>
+    ${DEMO ? `<p class="small">This is the free demo: 6 of the 12 cards.</p>` : ""}
+    ${historyHTML()}`;
+}
+
+function historyHTML() {
+  const h = loadHist();
+  if (!h.length) return "";
+  return `<h3 style="margin:30px 0 10px">Your decisions</h3>` + h.map(d => `
+    <button class="opt" data-open="${esc(d.id)}">
+      <div>${esc(d.a)} <span class="small">vs</span> ${esc(d.b)}</div>
+      <div class="small">${esc(status(d))}</div>
+    </button>`).join("");
+}
+
+function fork() {
+  return `
+    <p class="kicker">Lamp 1 · The Fork · 2 min</p>
+    <h2>Describe each option as a scene.</h2>
+    <p class="lead">Not "career vs stability". Write what you'd actually be doing: "I sign the lease for another year."</p>
+    <div class="panel">
+      <label class="f" for="a">Option A</label>
+      <textarea id="a" placeholder="I sign the lease for another year…">${esc(S.a)}</textarea>
+      <label class="f" for="b" style="margin-top:14px">Option B</label>
+      <textarea id="b" placeholder="I move to a cheaper place farther out…">${esc(S.b)}</textarea>
+    </div>
+    <div class="row"><button class="btn" id="next" data-go="2" ${S.a.trim() && S.b.trim() ? "" : "disabled"}>Next lamp</button></div>`;
+}
+
+function fogCheck() {
+  const done = S.quiz.every(x => x !== null);
+  let h = `
+    <p class="kicker">Lamp 2 · The Fog Check · 2 min</p>
+    <h2>What kind of stuck is this?</h2>
+    <p class="lead">Three quick questions. Go with your gut.</p>`;
+  QUIZ.forEach((q, qi) => {
+    h += `<div class="panel"><div class="qn">Question ${qi + 1}</div><div style="margin-bottom:12px">${esc(q.q)}</div>` +
+      q.a.map((o, oi) => `<button class="opt ${S.quiz[qi] === oi ? "sel" : ""}" data-q="${qi}" data-o="${oi}">${esc(o[0])}</button>`).join("") + `</div>`;
+  });
+  if (done) {
+    const t = S.type || diagnose();
+    h += `<div class="panel t-${t}"><span class="tag">${TYPES[t].name}</span>
+      <p style="color:var(--text);margin:10px 0 12px">${esc(TYPES[t].blurb)}</p>
+      <div class="small">Doesn't fit? Switch:
+        ${Object.keys(TYPES).filter(k => k !== t).map(k => `<button class="link" data-type="${k}">${TYPES[k].name}</button>`).join(" · ")}
+      </div></div>
+      <div class="row"><button class="btn" data-go="3" data-settype="${t}">Next lamp</button></div>`;
+  }
+  return h;
+}
+
+function flip() {
+  const t = S.type, pool = typeCards(t);
+  const blocks = S.slots.map((ci, slot) => {
+    const c = CARDS[ci];
+    const extra = `<label class="f" for="n${ci}">Your notes</label>
+      <textarea data-note="${ci}" id="n${ci}" placeholder="Write what comes up…">${esc(S.notes[ci] || "")}</textarea>
+      ${pool.some(x => !S.slots.includes(x.i)) ? `<div style="margin-top:8px"><button class="link" data-swap="${slot}">Draw a different ${TYPES[t].name} card</button></div>` : ""}`;
+    return cardHTML(c, ci, extra);
+  }).join("");
+  return `
+    <p class="kicker">Lamp 3 · The Flip · 4 min</p>
+    <h2>Two cards for your ${TYPES[t].name}.</h2>
+    <p class="lead">Spend about two minutes on each. Look at your fork: <i>"${esc(S.a)}"</i> vs <i>"${esc(S.b)}"</i>.</p>
+    ${blocks}
+    <div class="row"><button class="btn" data-go="4">Next lamp</button><button class="btn ghost" data-go="2">Back</button></div>`;
+}
+
+function nextDoor() {
+  return `
+    <p class="kicker">Lamp 4 · The Next Door · 2 min</p>
+    <h2>Test the choice. Don't make it yet.</h2>
+    <p class="lead">What can you do in the next 48 hours that would teach you something? A visit, a conversation, a small trial, a question to someone.</p>
+    <div class="panel">
+      <label class="f" for="action">My 48-hour test</label>
+      <textarea id="action" placeholder="On Wednesday at 8am I'll do the commute to the new place…">${esc(S.action)}</textarea>
+      <label class="f" for="when" style="margin-top:14px">I'll do it by</label>
+      <input type="date" id="when" value="${esc(S.when)}">
+    </div>
+    <div class="panel">
+      <div class="small" style="margin-bottom:10px">Your trigger rule. Decide now what the result will mean.</div>
+      <div class="fill"><span>If</span><input type="text" id="ifx" placeholder="the commute is under 45 minutes" value="${esc(S.ifx)}"></div>
+      <div class="fill"><span>then I choose</span><input type="text" id="choose" placeholder="Option B" value="${esc(S.choose)}"></div>
+      <div class="small">Otherwise, you choose the other option.</div>
+    </div>
+    <div class="row"><button class="btn" id="finish" data-go="5" ${S.action.trim() ? "" : "disabled"}>Make my Decision Card</button><button class="btn ghost" data-go="3">Back</button></div>`;
+}
+
+function result() {
+  const t = S.type, notes = S.slots.map(ci => ({ c: CARDS[ci], n: (S.notes[ci] || "").trim() }));
+  const date = S.when ? new Date(S.when + "T00:00:00").toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" }) : "";
+  return `
+    <p class="kicker noprint">Done · Your Decision Card</p>
+    <h2 class="noprint">You don't have to decide tonight. You have a next step.</h2>
+    <div class="dcard" id="dcard">
+      <div class="brand">The Midnight Room · Decision Card</div>
+      <h3>The fork</h3>
+      <p class="big">A: ${esc(S.a)}\nB: ${esc(S.b)}</p>
+      <h3>Stuck type</h3>
+      <p>${TYPES[t].name}. ${esc(TYPES[t].blurb)}</p>
+      <h3>What I noticed</h3>
+      <p>${notes.map(x => `<b>${esc(x.c.title)}:</b> ${esc(x.n || "—")}`).join("\n\n")}</p>
+      <h3>My 48-hour test</h3>
+      <p class="big">${esc(S.action)}${date ? `\nBy ${esc(date)}` : ""}</p>
+      <h3>My trigger rule</h3>
+      <p>${S.ifx.trim() ? `If ${esc(S.ifx)}, then I choose ${esc(S.choose || "…")}. Otherwise I choose the other option.` : "Not set yet. Decide before the test what result would change your mind."}</p>
+    </div>
+    <div class="row noprint">
+      <button class="btn" id="print">Print or save as PDF</button>
+      <button class="btn ghost" id="copy">Copy as text</button>
+      <button class="btn ghost" data-go="4">Edit</button>
+    </div>
+    <p class="small noprint" id="msg"></p>
+    <div class="panel noprint" style="margin-top:24px">
+      <p class="kicker">The check-in · after your test</p>
+      <label class="f" for="onote">What did the test show?</label>
+      <textarea id="onote" placeholder="The commute was 38 minutes, but the landlord said no…">${esc(S.outcomeNote)}</textarea>
+      <div class="small" style="margin:14px 0 8px">What now?</div>
+      ${[["A","I'm choosing A"],["B","I'm choosing B"],["again","I need another test"]].map(o =>
+        `<button class="opt ${S.outcomeChoice === o[0] ? "sel" : ""}" data-oc="${o[0]}">${o[1]}</button>`).join("")}
+    </div>`;
+}
+
+function plainText() {
+  const t = S.type;
+  return ["THE MIDNIGHT ROOM · DECISION CARD", "", "THE FORK", "A: " + S.a, "B: " + S.b, "",
+    "STUCK TYPE", TYPES[t].name, "", "WHAT I NOTICED",
+    ...S.slots.map(ci => CARDS[ci].title + ": " + ((S.notes[ci] || "").trim() || "—")), "",
+    "MY 48-HOUR TEST", S.action + (S.when ? " (by " + S.when + ")" : ""), "",
+    "MY TRIGGER RULE", S.ifx ? `If ${S.ifx}, then I choose ${S.choose}. Otherwise I choose the other option.` : "Not set"].join("\n");
+}
+
+function bind() {
+  app.querySelectorAll("[data-go]").forEach(el => el.addEventListener("click", () => {
+    if (el.dataset.settype) S.type = el.dataset.settype;
+    go(Number(el.dataset.go));
+  }));
+  const a = $("a"), b = $("b");
+  if (a && b) {
+    const upd = () => { S.a = a.value; S.b = b.value; save(); $("next").disabled = !(S.a.trim() && S.b.trim()); };
+    a.addEventListener("input", upd); b.addEventListener("input", upd);
+  }
+  app.querySelectorAll("[data-q]").forEach(el => el.addEventListener("click", () => {
+    S.quiz[el.dataset.q] = Number(el.dataset.o); S.type = null;
+    if (S.quiz.every(x => x !== null)) S.type = diagnose();
+    save(); const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  app.querySelectorAll("[data-type]").forEach(el => el.addEventListener("click", () => {
+    S.type = el.dataset.type; save(); const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  app.querySelectorAll("[data-swap]").forEach(el => el.addEventListener("click", () => {
+    const slot = Number(el.dataset.swap), pool = typeCards(S.type).map(x => x.i);
+    const free = pool.filter(i => !S.slots.includes(i));
+    if (!free.length) return;
+    S.slots[slot] = free[0]; save(); const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  app.querySelectorAll("[data-note]").forEach(el => el.addEventListener("input", () => { S.notes[el.dataset.note] = el.value; save(); }));
+  [["action","action"],["when","when"],["ifx","ifx"],["choose","choose"]].forEach(([id, k]) => {
+    const el = $(id); if (!el) return;
+    el.addEventListener("input", () => { S[k] = el.value; save(); const f = $("finish"); if (f) f.disabled = !S.action.trim(); });
+  });
+  if ($("start")) $("start").addEventListener("click", () => { S = blank(); go(1); });
+  app.querySelectorAll("[data-open]").forEach(el => el.addEventListener("click", () => {
+    const d = loadHist().find(x => x.id === el.dataset.open);
+    if (d) { S = Object.assign(blank(), d); go(5); }
+  }));
+  if ($("onote")) $("onote").addEventListener("input", () => { S.outcomeNote = $("onote").value; save(); upsertHist(); });
+  app.querySelectorAll("[data-oc]").forEach(el => el.addEventListener("click", () => {
+    S.outcomeChoice = el.dataset.oc; save(); upsertHist(); const y = window.scrollY; render(); window.scrollTo(0, y);
+  }));
+  if ($("print")) $("print").addEventListener("click", () => window.print());
+  if ($("copy")) $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(plainText()); $("msg").textContent = "Copied."; }
+    catch (e) { $("msg").textContent = "Couldn't copy automatically. Use Print instead."; }
+  });
+}
+
+function library() {
+  app.innerHTML = `<p class="kicker">The deck</p><h2>12 cards, 3 kinds of stuck.</h2>
+    <p class="lead">In a session you'll draw two cards from the set that matches your stuck type.</p>
+    ${Object.keys(TYPES).map(t => `<h3 class="t-${t}" style="margin:22px 0 10px">${TYPES[t].name}: ${esc(TYPES[t].blurb)}</h3>` +
+      allOfType(t).map(x => cardHTML(x.c, x.i)).join("")).join("")}
+    <div class="row"><button class="btn" id="back">Back</button></div>`;
+  $("back").addEventListener("click", render);
+  window.scrollTo(0, 0);
+}
+
+$("libBtn").addEventListener("click", library);
+$("homeBtn").addEventListener("click", () => { S.step = 0; save(); render(); });
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+$("resetBtn").addEventListener("click", () => {
+  if (confirm("Start over? Your current answers will be cleared.")) { S = blank(); save(); render(); }
+});
+render();
+</script>
+</body>
+</html>
