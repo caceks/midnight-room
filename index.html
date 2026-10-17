@@ -139,13 +139,13 @@
     </div>
   </header>
   <div id="app"></div>
-  <footer class="noprint">A thinking tool, not medical, legal, financial or therapeutic advice. It never tells you what to choose.</footer>
+  <footer class="noprint">Just a thinking tool. Not medical, legal, financial or therapy advice, and it won't tell you what to choose.</footer>
 </div>
 <div class="bar noprint" id="bar" hidden><div class="in" id="barIn"></div></div>
 
 <script src="content.js"></script>
 <script>
-const STEPS = ["Name your choice", "Find your stuck type", "See it differently", "Take one small step"];
+const STEPS = ["What's the choice?", "How does it feel?", "A new angle", "One tiny step"];
 const KEY = "midnightRoom.v1", HKEY = "midnightRoom.history.v1";
 const blank = () => ({ id:null, step:0, qi:0, fi:0, pick:false, a:"", b:"", quiz:[null,null,null], type:null, type2:null,
   slots:[0,1], notes:{}, action:"", when:"", ifx:"", choose:"", outcomeNote:"", outcomeChoice:"" });
@@ -175,9 +175,9 @@ function scores() {
 function secondary(main) { const { n, order } = scores(); const k = order.find(x => x !== main); return n[k] > 0 ? k : null; }
 function diagnose() { S.type = scores().order[0]; S.type2 = secondary(S.type); }
 function status(d) {
-  if (d.outcomeChoice) return "Checked in: " + (d.outcomeChoice === "A" ? "chose A" : d.outcomeChoice === "B" ? "chose B" : "testing again");
-  if (!d.when) return "Test not dated";
-  return new Date(d.when + "T00:00:00") <= new Date() ? "Time to check in" : "Test by " + new Date(d.when + "T00:00:00").toLocaleDateString(undefined, { month:"short", day:"numeric" });
+  if (d.outcomeChoice) return "Checked in: " + (d.outcomeChoice === "A" ? "went with the first" : d.outcomeChoice === "B" ? "went with the second" : "trying something else");
+  if (!d.when) return "No date set yet";
+  return new Date(d.when + "T00:00:00") <= new Date() ? "Ready for your check-in" : "Tiny step by " + new Date(d.when + "T00:00:00").toLocaleDateString(undefined, { month:"short", day:"numeric" });
 }
 
 function go(step) {
@@ -214,44 +214,44 @@ function render() {
 }
 
 function intro() {
-  setBar(`<button class="btn" data-act="start">Begin</button>` +
+  setBar(`<button class="btn" data-act="start">Let's start</button>` +
     (S.id && S.step === 0 && S.a && !S.action.trim() ? "" : ""),
-    S.id && S.step === 0 && S.a && !S.action.trim() ? `<button class="link" data-act="go" data-n="1">Continue where I left off</button>` : "");
+    S.id && S.step === 0 && S.a && !S.action.trim() ? `<button class="link" data-act="go" data-n="1">Pick up where I left off</button>` : "");
   const h = loadHist();
   return `
     <div class="hero noprint"><div class="glow"></div><img src="hero.webp" alt="" onerror="this.remove()"></div>
-    <h1>Stuck on a choice?<br>Let's take it slowly.</h1>
-    <p class="lead">Four small steps, about 10 minutes. No wrong answers, and you don't have to decide tonight. You'll leave with one small thing to try.</p>
-    ${DEMO ? `<p class="small">Free demo of the Midnight Decision Kit: 6 of the 12 cards.</p>` : ""}
-    ${h.length ? `<h2 style="font-size:22px;margin:34px 0 12px">Your decisions</h2>` + h.map(d => `
+    <h1>Can't decide?<br>Let's figure it out together.</h1>
+    <p class="lead">Four easy steps, about 10 minutes. No wrong answers, and you don't have to decide tonight. You'll end up with one tiny thing to try.</p>
+    ${DEMO ? `<p class="small">Free demo: you get 6 of the 12 cards.</p>` : ""}
+    ${h.length ? `<h2 style="font-size:22px;margin:34px 0 12px">Your past decisions</h2>` + h.map(d => `
       <button class="opt" data-act="open" data-id="${esc(d.id)}"><div>${esc(d.a)} <span class="small">or</span> ${esc(d.b)}</div>
       <div class="small">${esc(status(d))}</div></button>`).join("") : ""}`;
 }
 
 function fork() {
   const ok = S.a.trim() && S.b.trim();
-  setBar(`<button class="btn" id="cta" data-act="go" data-n="2" ${ok ? "" : "disabled"}>Continue</button>`);
+  setBar(`<button class="btn" id="cta" data-act="go" data-n="2" ${ok ? "" : "disabled"}>Next</button>`);
   return `
-    <h2>What are you choosing between?</h2>
-    <p class="lead">A few words each is plenty. Say them as things you'd actually do.</p>
-    <label class="f" for="a">One option</label>
-    <input type="text" id="a" data-bind="a" placeholder="e.g. Renew my lease" value="${esc(S.a)}" autocomplete="off">
+    <h2>What are you torn between?</h2>
+    <p class="lead">Just a few words for each. Say it like you'd tell a friend.</p>
+    <label class="f" for="a">Option one</label>
+    <input type="text" id="a" data-bind="a" placeholder="e.g. Stay in my flat" value="${esc(S.a)}" autocomplete="off">
     <div class="gap"></div>
-    <label class="f" for="b">The other option</label>
+    <label class="f" for="b">Option two</label>
     <input type="text" id="b" data-bind="b" placeholder="e.g. Move somewhere cheaper" value="${esc(S.b)}" autocomplete="off">`;
 }
 
 function quiz() {
   if (S.qi >= 3) {
     const t = S.type, t2 = S.type2;
-    setBar(`<button class="btn" id="cta" data-act="go" data-n="3">Yes, that fits</button>`,
-      `<button class="link" data-act="pick">Not quite</button>`);
+    setBar(`<button class="btn" id="cta" data-act="go" data-n="3">Yeah, that's me</button>`,
+      `<button class="link" data-act="pick">Hmm, not quite</button>`);
     return `
-      <p class="kicker">It sounds like</p>
-      <h2 class="big t-${t}">${esc(TYPES[t].name)}</h2>
-      <p class="lead">${esc(TYPES[t].blurb)}</p>
-      ${t2 ? `<p class="small">There may be a little <b class="t-${t2}">${esc(TYPES[t2].name)}</b> in it too. You'll get a card for each.</p>` : ""}
-      ${S.pick ? `<div style="margin-top:20px"><p class="small">Pick the one that feels closest:</p>` +
+      <p class="kicker">Sounds like…</p>
+      <h2 class="big t-${t}">${esc(TYPES[t].say)}.</h2>
+      <p class="lead">${esc(TYPES[t].blurb)} That's really common.</p>
+      ${t2 ? `<p class="small">There might be a bit of <b class="t-${t2}">"${esc(TYPES[t2].name.toLowerCase())}"</b> in there too, so you'll get a card for each.</p>` : ""}
+      ${S.pick ? `<div style="margin-top:20px"><p class="small">Which one feels closer?</p>` +
         Object.keys(TYPES).filter(k => k !== t).map(k => `<button class="opt" data-act="type" data-k="${k}"><b class="t-${k}">${esc(TYPES[k].name)}</b><br><span class="small">${esc(TYPES[k].blurb)}</span></button>`).join("") + `</div>` : ""}`;
   }
   const q = QUIZ[S.qi];
@@ -259,45 +259,45 @@ function quiz() {
   return `
     <p class="kicker">Question ${S.qi + 1} of 3</p>
     <h2>${esc(q.q)}</h2>
-    <p class="lead">Go with your gut. Tap the closest one.</p>
+    <p class="lead">No right answer. Tap whatever feels closest.</p>
     ${q.a.map((o, oi) => `<button class="opt ${S.quiz[S.qi] === oi ? "sel" : ""}" data-act="opt" data-o="${oi}">${esc(o[0])}</button>`).join("")}`;
 }
 
 function flip() {
   const ci = S.slots[S.fi], c = CARDS[ci], last = S.fi === 1;
   const free = typeCards(c.t).some(x => !S.slots.includes(x.i));
-  setBar(`<button class="btn" id="cta" data-act="${last ? "go" : "next"}" data-n="4">${last ? "Continue" : "Next card"}</button>`,
+  setBar(`<button class="btn" id="cta" data-act="${last ? "go" : "next"}" data-n="4">${last ? "Next" : "Next card"}</button>`,
     `<button class="link" data-act="${S.fi ? "prev" : "go"}" data-n="2">Back</button>`);
   return `
     <p class="kicker">Card ${S.fi + 1} of 2 · <span class="t-${c.t}">${esc(TYPES[c.t].name)}</span></p>
     <h2 class="big">${esc(c.q)}</h2>
-    <div class="ex"><b>TRY THIS</b>${esc(c.ex)}</div>
+    <div class="ex"><b>Try this</b>${esc(c.ex)}</div>
     <details><summary>Why this question?</summary><p style="margin:6px 0 0">${esc(c.why)}</p></details>
-    <label class="f" for="n">Jot a few words if you like (optional)</label>
-    <textarea id="n" data-note="${ci}" placeholder="Whatever comes up…">${esc(S.notes[ci] || "")}</textarea>
-    ${free ? `<button class="link" data-act="swap" style="margin-top:6px">Show me a different one</button>` : ""}`;
+    <label class="f" for="n">Jot down a few words (totally optional)</label>
+    <textarea id="n" data-note="${ci}" placeholder="Whatever comes to mind…">${esc(S.notes[ci] || "")}</textarea>
+    ${free ? `<button class="link" data-act="swap" style="margin-top:6px">Give me a different one</button>` : ""}`;
 }
 
 function nextDoor() {
-  const ideas = ["Talk to someone who's been there", "Try a small version for an hour", "Look up the one fact I'm missing", "Sleep on it and revisit"];
-  setBar(`<button class="btn" id="cta" data-act="go" data-n="5" ${S.action.trim() ? "" : "disabled"}>Make my Decision Card</button>`,
+  const ideas = ["Chat with someone who's been through it", "Try a mini version for an hour", "Look up the one thing I don't know", "Sleep on it and look again"];
+  setBar(`<button class="btn" id="cta" data-act="go" data-n="5" ${S.action.trim() ? "" : "disabled"}>Make my card</button>`,
     `<button class="link" data-act="go" data-n="3">Back</button>`);
   return `
-    <h2>Pick one small thing to try.</h2>
-    <p class="lead">Not the decision itself, just something that would teach you something in the next two days. Tap an idea or write your own.</p>
+    <h2>Pick one tiny thing to try.</h2>
+    <p class="lead">Not the big decision, just something small that helps you see more clearly in the next couple of days. Tap an idea or write your own.</p>
     <div>${ideas.map(t => `<button class="chip" data-act="chip" data-text="${esc(t)}">${esc(t)}</button>`).join("")}</div>
-    <textarea id="action" data-bind="action" placeholder="My small test…">${esc(S.action)}</textarea>
+    <textarea id="action" data-bind="action" placeholder="My tiny step…">${esc(S.action)}</textarea>
     <div class="gap"></div>
-    <label class="f">When?</label>
+    <label class="f">When will you do it?</label>
     <div>
       <button class="chip" data-act="day" data-d="1">Tomorrow</button>
       <button class="chip" data-act="day" data-d="2">In 2 days</button>
       <button class="chip" data-act="day" data-d="w">This weekend</button>
     </div>
     <input type="date" id="when" data-bind="when" value="${esc(S.when)}">
-    <details style="margin-top:22px"><summary>Add a rule for what the result will mean (optional)</summary>
+    <details style="margin-top:22px"><summary>Want a little rule for what you'll do after? (optional)</summary>
       <div class="fill" style="margin-top:10px"><span>If</span><input type="text" id="ifx" data-bind="ifx" placeholder="the commute is under 45 minutes" value="${esc(S.ifx)}"></div>
-      <div class="fill"><span>then I choose</span><input type="text" id="choose" data-bind="choose" placeholder="Option B" value="${esc(S.choose)}"></div>
+      <div class="fill"><span>then I'll pick</span><input type="text" id="choose" data-bind="choose" placeholder="Option B" value="${esc(S.choose)}"></div>
     </details>`;
 }
 
@@ -308,42 +308,42 @@ function result() {
   const notes = S.slots.map(ci => ({ c: CARDS[ci], n: (S.notes[ci] || "").trim() })).filter(x => x.n);
   return `
     <p class="kicker noprint">All done</p>
-    <h2 class="noprint">That's enough for tonight. You have a next step.</h2>
+    <h2 class="noprint">Nice. That's enough for tonight. You've got a next step.</h2>
     <div class="dcard">
-      <div class="bname">Midnight Decision Kit · Decision Card</div>
+      <div class="bname">Midnight Decision Kit · My card</div>
       <h3>The choice</h3><p class="big">${esc(S.a)}\n${esc(S.b)}</p>
       <h3>What's making it hard</h3><p>${esc(TYPES[t].name)}${S.type2 ? " (also " + esc(TYPES[S.type2].name) + ")" : ""}</p>
       ${notes.length ? `<h3>What I noticed</h3><p>${notes.map(x => `<b>${esc(x.c.title)}:</b> ${esc(x.n)}`).join("\n\n")}</p>` : ""}
-      <h3>My small test</h3><p class="big">${esc(S.action)}${S.when ? "\nBy " + esc(nice(S.when)) : ""}</p>
-      ${S.ifx.trim() ? `<h3>My rule</h3><p>If ${esc(S.ifx)}, then I choose ${esc(S.choose || "…")}. Otherwise I choose the other option.</p>` : ""}
-      ${S.outcomeChoice ? `<h3>After the test</h3><p>${esc(S.outcomeNote)}${S.outcomeChoice === "again" ? "\nNeeds another test." : "\nChose " + S.outcomeChoice + "."}</p>` : ""}
+      <h3>My tiny step</h3><p class="big">${esc(S.action)}${S.when ? "\nBy " + esc(nice(S.when)) : ""}</p>
+      ${S.ifx.trim() ? `<h3>My little rule</h3><p>If ${esc(S.ifx)}, then I'll pick ${esc(S.choose || "…")}. Otherwise I'll pick the other one.</p>` : ""}
+      ${S.outcomeChoice ? `<h3>After my step</h3><p>${esc(S.outcomeNote)}${S.outcomeChoice === "again" ? "\nWant to try something else first." : "\nWent with the " + (S.outcomeChoice === "A" ? "first" : "second") + " one."}</p>` : ""}
     </div>
-    <details class="noprint"><summary>After your test: come back and check in</summary>
+    <details class="noprint"><summary>Done your tiny step? Come back and tell us how it went</summary>
       <div class="panel" style="margin-top:10px">
-        <label class="f" for="onote">What did the test show?</label>
-        <textarea id="onote" data-bind="outcomeNote" placeholder="A few words is fine…">${esc(S.outcomeNote)}</textarea>
+        <label class="f" for="onote">How did it go?</label>
+        <textarea id="onote" data-bind="outcomeNote" placeholder="A few words is plenty…">${esc(S.outcomeNote)}</textarea>
         <div class="gap"></div>
-        ${[["A","I'm choosing the first option"],["B","I'm choosing the second option"],["again","I need another test"]].map(o =>
+        ${[["A","I'm going with the first one"],["B","I'm going with the second one"],["again","I want to try something else first"]].map(o =>
           `<button class="opt ${S.outcomeChoice === o[0] ? "sel" : ""}" data-act="oc" data-v="${o[0]}">${o[1]}</button>`).join("")}
       </div>
     </details>
     <div class="inline-actions noprint"><button class="btn ghost" data-act="go" data-n="4">Edit my card</button>
-      <button class="btn ghost" data-act="newdec">Start a new decision</button></div>`;
+      <button class="btn ghost" data-act="newdec">Start a new one</button></div>`;
 }
 
 function plainText() {
-  return ["MIDNIGHT DECISION KIT · DECISION CARD", "", "THE CHOICE", S.a, S.b, "",
+  return ["MIDNIGHT DECISION KIT · MY CARD", "", "THE CHOICE", S.a, S.b, "",
     "WHAT'S MAKING IT HARD", TYPES[S.type].name + (S.type2 ? " (also " + TYPES[S.type2].name + ")" : ""), "",
-    "MY SMALL TEST", S.action + (S.when ? " (by " + S.when + ")" : ""),
-    ...(S.ifx.trim() ? ["", "MY RULE", `If ${S.ifx}, then I choose ${S.choose}. Otherwise I choose the other option.`] : [])].join("\n");
+    "MY TINY STEP", S.action + (S.when ? " (by " + S.when + ")" : ""),
+    ...(S.ifx.trim() ? ["", "MY LITTLE RULE", `If ${S.ifx}, then I'll pick ${S.choose}. Otherwise I'll pick the other one.`] : [])].join("\n");
 }
 
 function library() {
   setBar(`<button class="btn" id="cta" data-act="home">Back</button>`);
-  app.innerHTML = `<div class="screen"><h2>The cards</h2><p class="lead">Three kinds of stuck, four cards each. In a session you'll get two cards that match yours.</p>
+  app.innerHTML = `<div class="screen"><h2>The cards</h2><p class="lead">Three kinds of stuck, four cards each. You'll get two that fit how you're feeling.</p>
     ${Object.keys(TYPES).map(t => `<h3 class="t-${t}" style="margin:26px 0 8px;font-weight:600">${esc(TYPES[t].name)}</h3><p class="small" style="margin-top:0">${esc(TYPES[t].blurb)}</p>` +
       allOfType(t).map(x => x.c.locked
-        ? `<div class="panel lock"><b>🔒 ${esc(x.c.title)}</b><div class="small">In the full deck.${BUY_URL ? ` <a style="color:var(--lamp)" href="${esc(BUY_URL)}">Get the full deck</a>` : " Coming soon."}</div></div>`
+        ? `<div class="panel lock"><b>🔒 ${esc(x.c.title)}</b><div class="small">Part of the full kit.${BUY_URL ? ` <a style="color:var(--lamp)" href="${esc(BUY_URL)}">Get the full kit</a>` : " Coming soon."}</div></div>`
         : `<div class="panel"><div class="small" style="color:var(--lamp)">${esc(x.c.title)}</div><div style="font-family:var(--serif);font-size:22px;line-height:1.3;margin:4px 0 8px">${esc(x.c.q)}</div><div class="small">${esc(x.c.ex)}</div></div>`).join("")).join("")}</div>`;
   window.scrollTo(0, 0);
 }
